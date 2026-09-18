@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Build outputs
+dist/
+build/
+**/dist/
+**/build/
+client/dist/
+server/dist/
+.vercel
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# Coverage / test / cache
+coverage/
+.nyc_output/
+.cache/
+*.tgz
+.eslintcache
+*.tsbuildinfo
+
+# Keys and certificates
+*.pem
+*.key
+*.cert
+
+# Temp / scratch directories
+tmp/
+temp/
+
+# Generated QA / automation artifacts (re-generated on each run)
+server/scripts/browser-qa-report.json
+playwright-report/
+test-results/

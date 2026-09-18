@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0A4D4A" />
+    <title>UPvote - Community Driven Product Roadmap</title>
+    <meta name="description" content="Submit feature requests, vote on ideas, and track your product roadmap. Community-driven feedback portal for building better products together." />
+    <!-- Open Graph / Social sharing -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="UPvote — Community Driven Product Roadmap" />
+    <meta property="og:description" content="Submit feature requests, vote on ideas, and track your product roadmap. Community-driven feedback portal for building better products together." />
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="UPvote — Community Driven Product Roadmap" />
+    <meta name="twitter:description" content="Submit feature requests, vote on ideas, and track your product roadmap." />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t === 'light') document.documentElement.classList.remove('dark');
+          else document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

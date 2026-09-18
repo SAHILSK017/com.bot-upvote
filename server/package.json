@@ -1,0 +1,36 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "smoke": "node scripts/smoke-phase6.js",
+    "smoke:phase1": "node scripts/smoke-phase1.js",
+    "smoke:phase2": "node scripts/smoke-phase2.js",
+    "smoke:phase3": "node scripts/smoke-phase3.js",
+    "smoke:phase4": "node scripts/smoke-phase4.js",
+    "smoke:phase5": "node scripts/smoke-phase5.js",
+    "smoke:phase6": "node scripts/smoke-phase6.js",
+    "seed": "node scripts/seed.js",
+    "seed:reset": "node scripts/seed.js --reset",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.5",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}
