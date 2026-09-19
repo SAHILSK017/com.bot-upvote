@@ -27,7 +27,7 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
 
 export function AppLayout() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, isAdmin, logout, isLoading } = useAuth();
+  const { user, isAuthenticated, isAdmin, logout, isLoading, isInitializingAuth } = useAuth();
   const { openAuthModal } = useAuthModal();
   const { startTour } = useOnboarding();
 
@@ -97,7 +97,7 @@ export function AppLayout() {
               <span>Community Radar Active</span>
             </div>
 
-            {isLoading ? null : isAuthenticated ? (
+            {isLoading || isInitializingAuth ? null : isAuthenticated ? (
               <div className="flex items-center gap-3">
                 <div className="hidden sm:flex items-center gap-2 rounded-full border border-border bg-white py-1 pl-1.5 pr-3 text-xs shadow-sm">
                   <div className="size-6 rounded-full bg-primary flex items-center justify-center font-bold text-white text-[10px]">

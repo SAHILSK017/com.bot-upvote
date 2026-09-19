@@ -15,9 +15,20 @@ import { errorMiddleware, notFoundMiddleware } from './middleware/error.middlewa
 export function createApp() {
   const app = express();
 
+  const allowedOrigins = [env.clientUrl];
+  if (!env.isProd) {
+    if (!allowedOrigins.includes('http://localhost:5173')) allowedOrigins.push('http://localhost:5173');
+    if (!allowedOrigins.includes('http://127.0.0.1:5173')) allowedOrigins.push('http://127.0.0.1:5173');
+  }
+
   app.use(
     cors({
-      origin: env.clientUrl,
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+        return callback(new Error(`CORS origin "${origin}" not allowed`));
+      },
       credentials: true,
     })
   );

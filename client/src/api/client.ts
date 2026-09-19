@@ -76,6 +76,25 @@ export async function silentRefresh(): Promise<string | null> {
   return refreshPromise;
 }
 
+/**
+ * Request interceptor to attach in-memory access token dynamically.
+ */
+api.interceptors.request.use(
+  (config) => {
+    const token = getAccessToken();
+    if (token) {
+      if (typeof config.headers?.set === 'function') {
+        config.headers.set('Authorization', `Bearer ${token}`);
+      } else {
+        config.headers = config.headers || {};
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -86,7 +105,12 @@ api.interceptors.response.use(
 
     // Don't try to refresh on auth endpoints themselves
     const url = original.url || '';
-    if (url.includes('/auth/login') || url.includes('/auth/signup') || url.includes('/auth/refresh')) {
+    if (
+      url.includes('/auth/login') ||
+      url.includes('/auth/signup') ||
+      url.includes('/auth/refresh') ||
+      url.includes('/auth/logout')
+    ) {
       return Promise.reject(error);
     }
 
@@ -95,7 +119,14 @@ api.interceptors.response.use(
     if (!token) {
       return Promise.reject(error);
     }
-    original.headers.Authorization = `Bearer ${token}`;
+
+    if (typeof original.headers?.set === 'function') {
+      original.headers.set('Authorization', `Bearer ${token}`);
+    } else {
+      original.headers = original.headers || {};
+      original.headers.Authorization = `Bearer ${token}`;
+    }
+
     return api(original);
   }
 );

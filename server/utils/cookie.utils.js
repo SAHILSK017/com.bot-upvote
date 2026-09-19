@@ -27,14 +27,12 @@ export function setRefreshCookie(res, token) {
 }
 
 /**
- * Clears the refresh token cookie.
+ * Clears the refresh token cookie on both /api/auth and root paths.
  * @param {import('express').Response} res
  */
 export function clearRefreshCookie(res) {
-  res.clearCookie(COOKIE_NAMES.REFRESH_TOKEN, {
-    httpOnly: true,
-    secure: env.isProd,
-    sameSite: env.isProd ? 'none' : 'lax',
-    path: '/api/auth',
-  });
+  const { maxAge: _unused, ...options } = refreshCookieOptions();
+  res.clearCookie(COOKIE_NAMES.REFRESH_TOKEN, options);
+  res.clearCookie(COOKIE_NAMES.REFRESH_TOKEN, { ...options, path: '/' });
 }
+

@@ -20,6 +20,7 @@ export type AuthContextValue = {
   user: AuthUser | null;
   accessToken: string | null;
   isLoading: boolean;
+  isInitializingAuth: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
   setSession: (token: string | null, user: AuthUser | null) => void;
@@ -37,6 +38,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [accessToken, setTokenState] = useState<string | null>(null);
+  const [isInitializingAuth, setIsInitializingAuth] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
   const setSession = useCallback((token: string | null, nextUser: AuthUser | null) => {
@@ -68,23 +70,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+
+    async function initializeAuth() {
       try {
         const token = await silentRefresh();
         if (cancelled) return;
+
         if (token) {
           setTokenState(token);
           try {
-            const me = await authApi.me();
-            if (!cancelled) setUser(me.data.data.user);
+            const meRes = await authApi.me();
+            if (!cancelled && meRes.data?.data?.user) {
+              setUser(meRes.data.data.user);
+            }
           } catch {
-            if (!cancelled) clearSession();
+            if (!cancelled) {
+              clearSession();
+            }
+          }
+        } else {
+          if (!cancelled) {
+            setTokenState(null);
+            setUser(null);
           }
         }
+      } catch {
+        if (!cancelled) {
+          setTokenState(null);
+          setUser(null);
+        }
       } finally {
-        if (!cancelled) setIsLoading(false);
+        if (!cancelled) {
+          setIsInitializingAuth(false);
+          setIsLoading(false);
+        }
       }
-    })();
+    }
+
+    void initializeAuth();
+
     return () => {
       cancelled = true;
     };
@@ -115,7 +139,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       user,
       accessToken: accessToken ?? getAccessToken(),
-      isLoading,
+      isLoading: isLoading || isInitializingAuth,
+      isInitializingAuth,
       isAuthenticated: Boolean(user && (accessToken || getAccessToken())),
       isAdmin: user?.role === 'admin',
       setSession,
@@ -124,7 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signup,
       logout,
     }),
-    [user, accessToken, isLoading, setSession, clearSession, login, signup, logout]
+    [user, accessToken, isLoading, isInitializingAuth, setSession, clearSession, login, signup, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
