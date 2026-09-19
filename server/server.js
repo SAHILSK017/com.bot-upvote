@@ -15,7 +15,16 @@ import { errorMiddleware, notFoundMiddleware } from './middleware/error.middlewa
 export function createApp() {
   const app = express();
 
-  const allowedOrigins = [env.clientUrl];
+  // Trust first proxy hop in production (Render, Railway, Heroku, Vercel, etc.)
+  // Critical for secure cookies and X-Forwarded-Proto
+  app.set('trust proxy', 1);
+
+  const rawClientUrls = (env.clientUrl || '')
+    .split(',')
+    .map((u) => u.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+
+  const allowedOrigins = [...rawClientUrls];
   if (!env.isProd) {
     if (!allowedOrigins.includes('http://localhost:5173')) allowedOrigins.push('http://localhost:5173');
     if (!allowedOrigins.includes('http://127.0.0.1:5173')) allowedOrigins.push('http://127.0.0.1:5173');
@@ -24,7 +33,9 @@ export function createApp() {
   app.use(
     cors({
       origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (!origin) return callback(null, true);
+        const normalized = origin.replace(/\/$/, '');
+        if (allowedOrigins.includes(origin) || allowedOrigins.includes(normalized)) {
           return callback(null, true);
         }
         return callback(new Error(`CORS origin "${origin}" not allowed`));
@@ -35,11 +46,16 @@ export function createApp() {
   app.use(express.json({ limit: '1mb' }));
   app.use(cookieParser());
 
+  // Mount on /api/* (standard) and /* (resilient fallback for VITE_API_URL variations)
   app.use('/api', healthRoutes);
   app.use('/api/auth', authRoutes);
+  app.use('/auth', authRoutes);
   app.use('/api/posts', postRoutes);
+  app.use('/posts', postRoutes);
   app.use('/api/comments', commentRoutes);
+  app.use('/comments', commentRoutes);
   app.use('/api/admin', adminRoutes);
+  app.use('/admin', adminRoutes);
 
   app.use(notFoundMiddleware);
   app.use(errorMiddleware);

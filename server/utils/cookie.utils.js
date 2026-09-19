@@ -5,6 +5,7 @@ const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
 /**
  * Cookie options for the refresh token (httpOnly; secure in production).
+ * Uses path: '/' and partitioned: true in production to support cross-domain deployments (CHIPS).
  * @returns {import('express').CookieOptions}
  */
 export function refreshCookieOptions() {
@@ -12,7 +13,8 @@ export function refreshCookieOptions() {
     httpOnly: true,
     secure: env.isProd,
     sameSite: env.isProd ? 'none' : 'lax',
-    path: '/api/auth',
+    partitioned: env.isProd,
+    path: '/',
     maxAge: SEVEN_DAYS_MS,
   };
 }
@@ -27,12 +29,12 @@ export function setRefreshCookie(res, token) {
 }
 
 /**
- * Clears the refresh token cookie on both /api/auth and root paths.
+ * Clears the refresh token cookie on both root and /api/auth paths.
  * @param {import('express').Response} res
  */
 export function clearRefreshCookie(res) {
   const { maxAge: _unused, ...options } = refreshCookieOptions();
   res.clearCookie(COOKIE_NAMES.REFRESH_TOKEN, options);
-  res.clearCookie(COOKIE_NAMES.REFRESH_TOKEN, { ...options, path: '/' });
+  res.clearCookie(COOKIE_NAMES.REFRESH_TOKEN, { ...options, path: '/api/auth' });
 }
 

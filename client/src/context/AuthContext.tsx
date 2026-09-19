@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
   createContext,
   useCallback,
@@ -83,9 +84,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (!cancelled && meRes.data?.data?.user) {
               setUser(meRes.data.data.user);
             }
-          } catch {
-            if (!cancelled) {
-              clearSession();
+          } catch (err: unknown) {
+            // Only clear session if backend explicitly rejected the token (401)
+            if (axios.isAxiosError(err) && err.response?.status === 401) {
+              if (!cancelled) {
+                clearSession();
+              }
             }
           }
         } else {
