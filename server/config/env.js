@@ -31,14 +31,26 @@ export function loadEnv() {
     );
   }
 
+  const clientUrl = process.env.CLIENT_URL.trim().replace(/\/$/, '');
+  const isCloudHost = Boolean(
+    process.env.RENDER ||
+    process.env.RAILWAY_ENVIRONMENT ||
+    process.env.VERCEL ||
+    process.env.HEROKU ||
+    process.env.NODE_ENV === 'production' ||
+    clientUrl.includes('https://')
+  );
+
+  const nodeEnv = process.env.NODE_ENV || (isCloudHost ? 'production' : 'development');
+
   return {
     port: Number(process.env.PORT) || 5000,
     mongoUri: process.env.MONGO_URI.trim(),
     jwtAccessSecret: process.env.JWT_ACCESS_SECRET.trim(),
     jwtRefreshSecret: process.env.JWT_REFRESH_SECRET.trim(),
-    clientUrl: process.env.CLIENT_URL.trim().replace(/\/$/, ''),
-    nodeEnv: process.env.NODE_ENV || 'development',
-    isProd: (process.env.NODE_ENV || 'development') === 'production',
+    clientUrl,
+    nodeEnv,
+    isProd: isCloudHost || nodeEnv === 'production',
   };
 }
 
